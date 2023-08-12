@@ -1,0 +1,22 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--/*@thymesVar id="item" type="com.wimdeblauwe.examples.todomvcthymeleaf.todoitem.web.TodoItemController.TodoItemDto"*/-->
+<li th:fragment="todoItem(item)"
+    th:classappend="${item.done?'completed':''}">
+    <div class="view">
+        <form style="display: inline-block;" th:action="@{/todo/{id}/toggle(id=${item.id})}" th:method="put">
+            <input class="toggle" type="checkbox" onchange="this.form.submit()"
+                   th:attrappend="checked=${item.done?'true':null}"> <label
+                id="todoLabel" th:text="${item.title}"></label>
+        </form>
+        <button th:if="${!item.done}" class="button-24" style="display: inline-block;"
+                th:onclick="editFunction([[${item.title}]], [[${item.id}]], [[${item.todoTime}]])">Update
+        </button>
+        <form th:action="@{/todo/{id}(id=${item.id})}" th:method="delete" style="display: inline-block;">
+            <button class="destroy"></button>
+        </form>
+    </div>
+    <input class="edit" value="Create a TodoMVC template">
+</li>
+</html>
+

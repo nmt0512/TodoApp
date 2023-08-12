@@ -1,0 +1,190 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todo List</title>
+    <link rel="stylesheet" th:href="@{/webjars/todomvc-common/base.css}">
+    <link rel="stylesheet" th:href="@{/webjars/todomvc-app-css/index.css}">
+    <link rel="stylesheet" th:href="@{styles.css}">
+    <script th:src="@{/webjars/todomvc-common/base.js}"></script>
+    <script th:if="${exception}">
+    alert("Can't save an empty todo!");
+    </script>
+    <script>
+    function datetimeLocal(datetime) {
+    const dt = new Date(datetime);
+    dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+    return dt.toISOString().slice(0, 16);
+    }
+
+	function editFunction(todoItem, todoId, todoTime) {
+		document.getElementById("new-todo").value = todoItem;
+		document.getElementById("todoId").value = todoId;
+		if(todoTime != null)
+		{
+		    document.getElementById("todo-time").value = datetimeLocal(todoTime);
+		}
+		else
+		{
+		    document.getElementById("todo-time").value = '';
+		}
+	}
+    </script>
+    <style>
+    .button-24 {
+  background: #B83F45;
+  border: 1px solid #B83F45;
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 16px;
+  min-height: 40px;
+  outline: 0;
+  padding: 12px 14px;
+  text-align: center;
+  text-rendering: geometricprecision;
+  text-transform: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+}
+
+.button-24 {
+  position: absolute;
+  margin-top: 7px;
+  margin-right: 60px;
+  right: 0px;
+  width: 100px;
+  border: 3px solid #B83F45;
+  padding: 10px;
+}
+
+.button-24:hover,
+.button-24:active {
+  background-color: initial;
+  background-position: 0 0;
+  color: #B83F45;
+}
+
+.button-24:active {
+  opacity: .5;
+}
+
+
+#new-todo
+{
+width: 63% !important;
+}
+
+#new-todo-parent {
+display: flex;
+flex-direction: row;
+}
+
+#todo-time {
+font-size: 16px !important;
+width: 37% !important;
+border: #ffffff;
+}
+
+    </style>
+</head>
+<body>
+<br>
+<form th:action="@{/logout}">
+    <button class="logout" role="button" onclick="this.form.submit()">Logout</button>
+</form>
+<section class="todoapp">
+    <header class="header">
+        <h1>todos</h1>
+
+        <form th:action="@{/todo}" method="post" th:object="${todoItem}">
+            <input id="todoId" type="hidden" th:field="*{id}">
+            <div id="new-todo-parent">
+                <input id="new-todo" class="new-todo" placeholder="What needs to be done?"
+                       th:field="*{title}">
+                <input id="todo-time" type="datetime-local"
+                       th:field="*{todoTimeStr}">
+            </div>
+        </form>
+
+    </header>
+    <!-- This section should be hidden by default and shown when there are todos -->
+    <section class="main" th:if="${totalItems > 0}">
+        <form th:action="@{/todo/complete-all}" th:method="put">
+            <input id="toggle-all" class="toggle-all" type="checkbox"
+                   onclick="this.form.submit()"> <label for="toggle-all">Mark
+            all as complete</label>
+        </form>
+        <ul class="todo-list" th:remove="all-but-first">
+            <li th:insert="fragments :: todoItem(${item})"
+                th:each="item : ${todos}" th:remove="tag"></li>
+            <!-- These are here just to show the structure of the list items -->
+            <!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
+            <li class="completed">
+                <div class="view">
+                    <input class="toggle" type="checkbox" checked> <label>Taste
+                    JavaScript</label>
+                    <button class="destroy"></button>
+                </div>
+                <input class="edit" value="Create a TodoMVC template">
+            </li>
+            <li>
+                <div class="view">
+                    <input class="toggle" type="checkbox"> <label>Buy
+                    a unicorn</label>
+                    <button class="destroy"></button>
+                </div>
+                <input class="edit" value="Rule the web">
+            </li>
+        </ul>
+    </section>
+    <!-- This footer should be hidden by default and shown when there are todos -->
+    <footer class="footer" th:if="${totalItems > 0}">
+
+        <!-- This should be `0 items left` by default -->
+        <th:block th:unless="${totalActiveItems == 1}">
+				<span class="todo-count"><strong
+                        th:text="${totalActiveItems}"></strong> items left</span>
+        </th:block>
+        <th:block th:if="${totalActiveItems == 1}">
+            <span class="todo-count"><strong>1</strong> item left</span>
+        </th:block>
+        <!-- Remove this if you don't implement routing -->
+
+        <ul class="filters">
+            <li><a th:href="@{/todo}"
+                   th:classappend="${filter.name() == 'ALL'?'selected':''}">All</a></li>
+            <li><a th:href="@{/todo/active}"
+                   th:classappend="${filter.name() == 'ACTIVE'?'selected':''}">Active</a>
+            </li>
+            <li><a th:href="@{/todo/completed}"
+                   th:classappend="${filter.name() == 'COMPLETED'?'selected':''}">Completed</a>
+            </li>
+        </ul>
+        <!-- Hidden if no completed items are left ↓ -->
+        <form th:action="@{/todo/clear-completed}" th:method="delete"
+              th:if="${totalCompletedItems > 0}">
+            <button class="clear-completed">Clear completed</button>
+        </form>
+    </footer>
+</section>
+<footer class="info">
+    <p>
+        Created by <a href="https://www.facebook.com/nmt.051201/">Nguyen Minh Thieu</a>
+    </p>
+</footer>
+<!-- Scripts here. Don't remove ↓ -->
+<script src="node_modules/todomvc-common/base.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
