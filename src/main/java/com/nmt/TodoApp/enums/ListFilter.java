@@ -1,4 +1,4 @@
-package com.nmt.TodoApp.filter;
+package com.nmt.TodoApp.enums;
 
 public enum ListFilter {
     ALL,

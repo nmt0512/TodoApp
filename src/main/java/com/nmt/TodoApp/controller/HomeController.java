@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.nmt.TodoApp.dto.TodoItemDto;
-import com.nmt.TodoApp.filter.ListFilter;
+import com.nmt.TodoApp.enums.ListFilter;
 import com.nmt.TodoApp.service.ITodoItemService;
 
 @Controller
